@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,8 +13,15 @@ class Batch extends Model
     use HasFactory;
 
     protected $fillable = [
-        'product_id', 'created_by', 'batch_code', 'qr_code_url', 'harvest_date', 'expiry_date',
-        'initial_quantity', 'current_quantity', 'status',
+        'product_id',
+        'created_by',
+        'batch_code',
+        'qr_code_url',
+        'harvest_date',
+        'expiry_date',
+        'initial_quantity',
+        'current_quantity',
+        'status',
     ];
 
     protected function casts(): array
@@ -51,9 +59,44 @@ class Batch extends Model
         return $this->hasMany(OrderDetail::class);
     }
 
-    /** Số ngày còn lại đến hạn sử dụng (âm nếu đã quá hạn) */
+    /**
+     * Số ngày còn lại đến hạn sử dụng (âm nếu đã quá hạn).
+     */
     public function daysToExpiry(): int
     {
-        return (int) now()->startOfDay()->diffInDays($this->expiry_date->copy()->startOfDay(), false);
+        return (int) now()->startOfDay()->diffInDays(
+            $this->expiry_date->copy()->startOfDay(),
+            false
+        );
+    }
+
+    public static function warningDays(): int
+    {
+        static $days = null;
+
+        return $days ??= (int) (
+            DB::table('system_configs')
+                ->where('key', 'expiry_warning_days')
+                ->value('value') ?? 2
+        );
+    }
+
+    public function scopeNearExpiry($query)
+    {
+        return $query
+            ->where('current_quantity', '>', 0)
+            ->whereDate(
+                'expiry_date',
+                '<=',
+                now()->addDays(self::warningDays())
+            );
+    }
+
+    public function isNearExpiry(): bool
+    {
+        return (float) $this->current_quantity > 0
+            && $this->expiry_date->lte(
+                now()->addDays(self::warningDays())->endOfDay()
+            );
     }
 }
