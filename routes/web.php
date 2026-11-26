@@ -12,6 +12,7 @@ Route::get('/', function () {
 });
 use App\Http\Controllers\Api\CartOrderApiController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\OrderController;
 
 Route::prefix('api/cart')->group(function () {
     Route::get('/', [CartOrderApiController::class, 'getCart']);
@@ -19,6 +20,8 @@ Route::prefix('api/cart')->group(function () {
     Route::put('/{productId}', [CartOrderApiController::class, 'updateCart']);
     Route::delete('/{productId}', [CartOrderApiController::class, 'removeFromCart']);
 });
+
+Route::post('/api/orders', [OrderController::class, 'store'])->name('api.orders.store');
 
 Route::middleware(['auth', 'role:sales,admin'])
     ->patch('/api/orders/{id}/status', [CartOrderApiController::class, 'updateOrderStatus']);
