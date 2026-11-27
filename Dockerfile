@@ -1,4 +1,5 @@
-﻿# Stage 1: Build frontend assets
+﻿
+# Stage 1: Build frontend assets
 FROM node:24-alpine AS frontend
 
 WORKDIR /app
@@ -28,10 +29,10 @@ RUN composer install \
 FROM php:8.3-apache
 
 RUN apt-get update && apt-get install -y \
-    libsqlite3-dev \
+    default-mysql-client \
     libzip-dev \
     unzip \
-    && docker-php-ext-install pdo_sqlite zip \
+    && docker-php-ext-install pdo_mysql zip \
     && a2enmod rewrite headers \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
@@ -55,10 +56,7 @@ COPY --from=frontend /app/public/build ./public/build
 RUN rm -f bootstrap/cache/*.php \
     && php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache \
-    && chown -R www-data:www-data database \
-    && chmod 775 database \
-    && chmod 664 database/database.sqlite
+    && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
 
