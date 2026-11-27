@@ -1,33 +1,20 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>@yield('title', 'Nông Sản Sạch')</title>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-
 <body class="min-h-screen bg-gray-50 text-gray-800">
-
-    {{-- Header --}}
     <x-header />
-
-    {{-- Nội dung chính --}}
-    <main class="min-h-[70vh]">
+    <main>
         @yield('content')
     </main>
-
-    {{-- Footer --}}
     <x-footer />
 
-    <x-toast /> và <x-session-modal />
-
+    <x-toast />
+    <x-session-modal />
 </body>
 </html>

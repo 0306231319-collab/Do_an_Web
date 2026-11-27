@@ -82,6 +82,7 @@ class OrderController extends Controller
                 return $order->load('details.batch');
             });
 
+            session()->forget('cart');
             return response()->json([
                 'success' => true,
                 'code'    => 201,

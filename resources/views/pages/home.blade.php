@@ -1,120 +1,135 @@
+
 @extends('layouts.app')
 
 @section('title', 'Trang chủ - Nông Sản Sạch')
 
 @section('content')
+<x-container class="py-10">
 
-    <x-container class="py-10">
-        {{-- Kiểm tra Alpine.js --}}
-        <section
-            class="mt-10 rounded-xl bg-white p-6 shadow-sm"
-            x-data="{ dem: 0 }"
-        >
+    {{-- Banner giới thiệu --}}
+    <section class="rounded-2xl bg-green-100 p-6 md:p-12">
+        <h1 class="text-3xl font-bold text-green-800 md:text-5xl">
+            Nông sản sạch từ nông trại
+        </h1>
 
-            <h2 class="text-xl font-bold">
-                Kiểm tra Alpine.js
-            </h2>
+        <p class="mt-4 max-w-xl text-gray-700">
+            Truy xuất nguồn gốc rõ ràng. Mua sắm nông sản tươi sạch và an toàn.
+        </p>
 
-            <p class="mt-3">
-                Số lần nhấn:
-                <span x-text="dem"></span>
-            </p>
+        <a href="#products"
+           class="mt-6 inline-flex rounded-lg bg-green-700 px-5 py-3 font-semibold text-white hover:bg-green-800">
+            Khám phá sản phẩm
+        </a>
+    </section>
 
-            <div class="mt-4 flex gap-3">
+    {{-- Danh sách sản phẩm --}}
+    <section id="products" class="mt-10">
+        <h2 class="mb-6 text-2xl font-bold">
+            Sản phẩm nổi bật
+        </h2>
 
-                <x-button @click="dem++">
-                    Tăng
-                </x-button>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
 
-                <x-button color="gray" @click="dem = 0">
-                    Reset
-                </x-button>
+            @forelse ($products as $product)
 
-            </div>
+                @php
+                    $price = ($product->discount_price && $product->discount_price > 0)
+                        ? $product->discount_price
+                        : $product->base_price;
+                @endphp
 
-        </section>
+                <article
+                    x-data="{
+                        loading: false,
 
-        {{-- Banner --}}
-        <section class="rounded-2xl bg-green-100 p-6 md:p-12">
+                        async addToCart(productId) {
+                            if (this.loading) return;
 
-            <h1 class="text-3xl font-bold text-green-800 md:text-5xl">
-                Nông sản sạch từ nông trại
-            </h1>
+                            this.loading = true;
 
-            <p class="mt-4 max-w-xl text-gray-700">
-                Truy xuất nguồn gốc rõ ràng.
-                Mua sắm nông sản tươi sạch và an toàn.
-            </p>
+                            try {
+                                const response = await window.apiFetch('/api/cart', {
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                        product_id: productId,
+                                        quantity: 1
+                                    })
+                                });
 
-            <div class="mt-6">
-                <x-button>
-                    Khám phá sản phẩm
-                </x-button>
-            </div>
+                                const result = await response.json();
 
-        </section>
+                                if (!response.ok || !result.success) {
+                                    throw new Error(
+                                        result.message || 'Không thể thêm sản phẩm vào giỏ hàng.'
+                                    );
+                                }
 
-        {{-- Sản phẩm --}}
-        <section class="mt-10">
+                                window.dispatchEvent(new CustomEvent('toast', {
+                                    detail: {
+                                        message: 'Đã thêm sản phẩm vào giỏ hàng.'
+                                    }
+                                }));
 
-            <h2 class="mb-6 text-2xl font-bold">
-                Sản phẩm nổi bật
-            </h2>
+                            } catch (error) {
+                                window.dispatchEvent(new CustomEvent('toast', {
+                                    detail: {
+                                        message: error.message || 'Có lỗi xảy ra.'
+                                    }
+                                }));
 
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                            } finally {
+                                this.loading = false;
+                            }
+                        }
+                    }"
+                    class="rounded-xl bg-white p-5 shadow-sm transition hover:shadow-md"
+                >
 
-                <div class="rounded-xl bg-white p-5 shadow-sm">
+                    {{-- Ảnh sản phẩm --}}
+                    <img
+                        src="{{ $product->thumbnail_url }}"
+                        alt="{{ $product->name }}"
+                        class="mb-4 h-44 w-full rounded-lg bg-gray-100 object-cover"
+                        onerror="this.style.visibility='hidden'"
+                    >
+
+                    {{-- Tên sản phẩm --}}
                     <h3 class="font-semibold">
-                        Rau sạch
+                        {{ $product->name }}
                     </h3>
 
-                    <p class="mt-2 text-gray-500">
-                        Rau được thu hoạch từ nông trại.
+                    {{-- Mô tả --}}
+                    <p class="mt-2 line-clamp-2 text-sm text-gray-500">
+                        {{ $product->description }}
                     </p>
 
-                    <div class="mt-4">
-                        <x-button color="green">
-                            Xem sản phẩm
-                        </x-button>
-                    </div>
-                </div>
-
-                <div class="rounded-xl bg-white p-5 shadow-sm">
-                    <h3 class="font-semibold">
-                        Trái cây
-                    </h3>
-
-                    <p class="mt-2 text-gray-500">
-                        Trái cây tươi, có nguồn gốc rõ ràng.
+                    {{-- Giá sản phẩm --}}
+                    <p class="mt-3 font-bold text-green-700">
+                        {{ number_format($price, 0, ',', '.') }}đ/{{ $product->unit }}
                     </p>
 
-                    <div class="mt-4">
-                        <x-button>
-                            Xem sản phẩm
-                        </x-button>
-                    </div>
-                </div>
+                    {{-- Nút thêm giỏ hàng AJAX --}}
+                    <button
+                        type="button"
+                        @click="addToCart({{ $product->id }})"
+                        :disabled="loading"
+                        class="mt-4 w-full rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span x-text="loading ? 'Đang thêm...' : 'Thêm vào giỏ hàng'"></span>
+                    </button>
 
-                <div class="rounded-xl bg-white p-5 shadow-sm">
-                    <h3 class="font-semibold">
-                        Nông sản theo mùa
-                    </h3>
+                </article>
 
-                    <p class="mt-2 text-gray-500">
-                        Các sản phẩm được thu hoạch theo mùa vụ.
-                    </p>
+            @empty
 
-                    <div class="mt-4">
-                        <x-button>
-                            Xem sản phẩm
-                        </x-button>
-                    </div>
-                </div>
+                <p class="text-gray-500">
+                    Hiện chưa có sản phẩm đang kinh doanh.
+                </p>
 
-            </div>
+            @endforelse
 
-        </section>
+        </div>
+    </section>
 
-    </x-container>
-
+</x-container>
 @endsection
