@@ -1,35 +1,24 @@
-<header class="bg-white shadow-sm">
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
-
-        {{-- Logo --}}
-        <a href="/" class="text-xl font-bold text-green-600">
-            Nông Sản Sạch
+@php
+    $sampleBatchCode = \App\Models\Batch::latest()->value('batch_code');
+@endphp
+<header class="sticky top-0 z-30 border-b border-[#E5E2D9] bg-[#1E5631] text-white shadow-xs">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        {{-- Logo / Tên thương hiệu --}}
+        <a href="{{ url('/') }}" class="flex items-center gap-2 text-sm font-bold tracking-tight sm:text-base">
+            <span>Nông Sản Sạch</span>
         </a>
 
-        {{-- Menu Desktop --}}
-        <nav class="hidden items-center gap-6 md:flex">
-            <a href="/" class="hover:text-green-600">
-                Trang chủ
-            </a>
-
-            <a href="#" class="hover:text-green-600">
-                Sản phẩm
-            </a>
-
-            <a href="#" class="hover:text-green-600">
-                Về chúng tôi
-            </a>
-
-            <a href="#" class="hover:text-green-600">
-                Liên hệ
-            </a>
+        {{-- Menu điều hướng --}}
+        <nav class="flex items-center gap-3 text-xs font-medium sm:gap-5 sm:text-sm">
+            <a href="{{ url('/') }}" class="hover:text-emerald-200 transition">Trang chủ</a>
+            <a href="{{ \Illuminate\Support\Facades\Route::has('products.index') ? route('products.index') : '#' }}"
+               class="hover:text-emerald-200 transition">Sản phẩm</a>
+            <a href="{{ \Illuminate\Support\Facades\Route::has('farm.about') ? route('farm.about') : '#' }}"
+               class="hover:text-emerald-200 transition">Nông trại</a>
+            <a href="{{ $sampleBatchCode && \Illuminate\Support\Facades\Route::has('traceability.show') ? route('traceability.show', ['batch_code' => $sampleBatchCode]) : '#' }}"
+               class="hover:text-emerald-200 transition">Truy xuất QR</a>
+            <a href="{{ \Illuminate\Support\Facades\Route::has('farm.batches.index') ? route('farm.batches.index') : '#' }}"
+               class="rounded-lg bg-white/15 px-2.5 py-1 hover:bg-white/25 transition">Lô hàng</a>
         </nav>
-
-        {{-- Nút giỏ hàng --}}
-        <a href="#"
-           class="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-            Giỏ hàng
-        </a>
-
     </div>
 </header>
