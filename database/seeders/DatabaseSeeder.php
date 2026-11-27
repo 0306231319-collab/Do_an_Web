@@ -18,10 +18,5 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
             SubscriptionSeeder::class,
         ]);
-
-        DB::table('system_configs')->updateOrInsert(
-            ['key' => 'expiry_warning_days'],
-            ['value' => '2']
-        );
     }
 }

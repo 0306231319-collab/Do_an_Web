@@ -25,6 +25,7 @@
                 <a href="{{ route($route) }}"
                    class="whitespace-nowrap rounded-lg px-3 py-2 min-h-11 flex items-center {{ request()->is($pattern) ? 'bg-emerald-700 font-semibold text-white' : 'hover:bg-emerald-800' }}">{{ $label }}</a>
             @endforeach
+                        <a href="/" class="mt-2 flex min-h-11 items-center gap-2 whitespace-nowrap rounded-lg border border-emerald-600 px-3 py-2 hover:bg-emerald-800">← Về trang chủ</a>
         </nav>
         <div class="hidden md:block px-5 py-3 text-xs text-emerald-200 border-t border-emerald-800 mt-4">
             {{ auth()->user()->full_name ?? '' }}

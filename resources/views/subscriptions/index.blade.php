@@ -1,12 +1,6 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gói Nông Sản Định Kỳ 1 Tháng</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 text-gray-800">
+@extends('layouts.app')
+@section('title', 'Gói định kỳ - Nông Sản Sạch')
+@section('content')
     <div class="max-w-6xl mx-auto px-4 py-8">
         <div class="flex items-center justify-between mb-6">
             <div>
@@ -34,7 +28,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Form đăng ký gói 1 tháng -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-300">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">1. Đăng ký gói 1 tháng</h2>
                 <form action="{{ route('subscriptions.store') }}" method="POST" class="space-y-4">
                     @csrf
@@ -107,10 +101,10 @@
                             <div class="flex flex-wrap justify-between items-start gap-2 mb-3">
                                 <div>
                                     <span class="font-bold text-green-700">#{{ $sub->id }} - {{ $sub->ten_goi }}</span>
-                                    <p class="text-xs text-gray-600 mt-0.5">
+                                    <p class="text-xs text-gray-700 mt-0.5">
                                         Người nhận: {{ $sub->nguoi_nhan }} ({{ $sub->sdt_nhan }}) | Địa chỉ: {{ $sub->dia_chi_giao }}
                                     </p>
-                                    <p class="text-xs text-gray-600 mt-0.5">
+                                    <p class="text-xs text-gray-700 mt-0.5">
                                         Sản phẩm:
                                         @foreach($sub->items as $item)
                                             <span class="font-semibold text-gray-800">{{ $item->product->name ?? 'SP #'.$item->product_id }} ({{ $item->so_luong }} kg/kỳ)</span>
@@ -127,7 +121,7 @@
 
                             <div class="overflow-x-auto bg-white rounded border">
                                 <table class="w-full text-sm text-left">
-                                    <thead class="bg-gray-100 text-gray-700 text-xs uppercase">
+                                    <thead class="bg-green-100 text-green-900 text-xs font-bold uppercase">
                                         <tr>
                                             <th class="px-3 py-2">Kỳ</th>
                                             <th class="px-3 py-2">Ngày giao dự kiến</th>
@@ -153,7 +147,7 @@
                                                 <td class="px-3 py-2 font-mono text-xs text-green-700 font-semibold">
                                                     {{ $sch->order->ma_don_hang ?? '—' }}
                                                 </td>
-                                                <td class="px-3 py-2 text-xs text-gray-500">{{ $sch->ghi_chu }}</td>
+                                                <td class="px-3 py-2 text-sm text-gray-600">{{ $sch->ghi_chu }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -167,5 +161,4 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+@endsection
