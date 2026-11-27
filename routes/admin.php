@@ -9,8 +9,6 @@ use App\Http\Controllers\Admin\BatchDisposalController;
 
 
 use App\Http\Middleware\EnsureAdmin;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
@@ -93,35 +91,3 @@ Route::prefix('admin')
         Route::get('/customers', [CustomerController::class, 'index'])
             ->name('customers.index');
     });
-
-
-// ==========================================
-// ĐĂNG NHẬP TEST LOCAL
-// CHỈ SỬ DỤNG TRONG MÔI TRƯỜNG LOCAL
-// ==========================================
-
-if (app()->environment('local')) {
-
-    Route::get('/dev-login/{role}', function (string $role) {
-
-        $user = User::where('role', $role)->firstOrFail();
-
-        Auth::login($user);
-
-        return redirect()->route('admin.dashboard');
-
-    })->name('dev.login');
-
-
-    Route::get('/dev-logout', function () {
-
-        Auth::logout();
-
-        request()->session()->invalidate();
-
-        request()->session()->regenerateToken();
-
-        return redirect('/');
-
-    })->name('dev.logout');
-}
