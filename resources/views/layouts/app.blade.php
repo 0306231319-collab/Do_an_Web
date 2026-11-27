@@ -7,7 +7,7 @@
     <title>@yield('title', 'Nông Sản Sạch')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-green-50 text-gray-800">
+<body class="bg-[#DDE7D3] text-slate-800">
     <x-header />
     <main>
         @yield('content')

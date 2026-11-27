@@ -17,11 +17,11 @@
 
 <header x-data="{ menu: false, user: false }" @keydown.escape.window="menu = false; user = false"
         class="sticky top-0 z-40 bg-green-800 text-white shadow-md">
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3">
 
         {{-- Logo --}}
-        <a href="/" class="flex items-center gap-2 text-xl font-extrabold tracking-tight">
-            <img src="{{ asset('images/logo.png') }}" alt="Nông Sản Sạch" class="h-10 w-10">
+        <a href="/" class="flex shrink-0 items-center gap-2 whitespace-nowrap text-lg font-extrabold tracking-tight sm:text-xl">
+            <img src="{{ asset('images/logo.png') }}" alt="Nông Sản Sạch" class="h-9 w-9 sm:h-10 sm:w-10">
             <span>Nông Sản Sạch</span>
         </a>
 
@@ -43,9 +43,14 @@
             </a>
 
             @guest
+                {{-- Máy tính: hiện 2 nút; điện thoại: nằm trong menu ☰ --}}
                 <a href="{{ route('login') }}"
-                   class="rounded-lg border border-white/60 px-4 py-2 text-sm font-semibold transition hover:bg-white/10">
+                   class="hidden whitespace-nowrap rounded-lg border border-white/60 px-4 py-2 text-sm font-semibold transition hover:bg-white/10 sm:inline-flex">
                     Đăng nhập
+                </a>
+                <a href="{{ route('register') }}"
+                   class="hidden whitespace-nowrap rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-800 shadow-sm transition hover:bg-green-50 sm:inline-flex">
+                    Đăng ký
                 </a>
             @endguest
 
@@ -129,5 +134,12 @@
         @foreach ($navLinks as [$label, $url])
             <a href="{{ $url }}" class="block rounded-lg px-3 py-3 text-sm font-medium hover:bg-green-800">{{ $label }}</a>
         @endforeach
+
+        @guest
+            <div class="mt-2 grid grid-cols-2 gap-2 border-t border-green-700 pt-3 pb-1">
+                <a href="{{ route('login') }}" class="rounded-lg border border-white/60 px-3 py-2.5 text-center text-sm font-semibold text-white hover:bg-white/10">Đăng nhập</a>
+                <a href="{{ route('register') }}" class="rounded-lg bg-white px-3 py-2.5 text-center text-sm font-semibold text-green-800 hover:bg-green-50">Đăng ký</a>
+            </div>
+        @endguest
     </nav>
 </header>
