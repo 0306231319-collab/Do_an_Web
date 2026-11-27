@@ -118,16 +118,6 @@ Route::post('/relogin', function (Request $request) {
     return response()->json(['message' => 'Sai thông tin'], 422);
 });
 
-// Tuần 4: Giao diện theo Figma (Mockup 1 & Mockup 2)
-Route::get('/farm/batches', function () {
-    $latestBatchCode = Batch::latest()->value('batch_code');
-    return view('pages.farm_batches', compact('latestBatchCode'));
-})->name('farm.batches.index');
-
-Route::get('/farm/batches/{id}/dispose', function ($id) {
-    return view('pages.farm_dispose');
-})->name('farm.batches.dispose');
-
 // Tuần 5: Trang truy xuất nguồn gốc (công khai khi quét mã QR)
 Route::get('/truy-xuat/{batch_code}', [TraceabilityController::class, 'show'])
     ->name('traceability.show');
