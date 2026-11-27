@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\BatchController;
 use App\Http\Controllers\Api\CartOrderApiController;
 use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SubscriptionController;
 
 // Trang chủ
 Route::get('/', function () {
@@ -17,6 +18,10 @@ Route::get('/', function () {
 
     return view('pages.home', compact('products'));
 });
+
+// Gói định kỳ bản rút gọn
+Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
+Route::post('/subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
 
 // Trang giỏ hàng
 Route::get('/cart', function () {
