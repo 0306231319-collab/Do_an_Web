@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\FefoService;
@@ -28,8 +29,9 @@ class OrderController extends Controller
             'items.*.quantity'  => 'required|numeric|min:0.01',
         ]);
 
-        // Lấy user đang đăng nhập, hoặc lấy user mặc định đầu tiên khi test Postman
-        $userId = auth()->id() ?? User::query()->value('id');
+        // Chỉ user đã đăng nhập mới được đặt hàng
+        $userId = $request->user()?->id;
+        abort_unless($userId, 401);
 
         if (!$userId) {
             return response()->json([

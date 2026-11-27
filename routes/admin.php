@@ -21,6 +21,38 @@ Route::prefix('admin')
             ->name('dashboard');
 
         // ==============================
+        // SẢN PHẨM
+        // ==============================
+
+        Route::resource('products', ProductController::class)
+            ->except('show');
+
+        // ==============================
+        // ĐƠN HÀNG
+        // ==============================
+
+        Route::get('/orders', [OrderController::class, 'index'])
+            ->name('orders.index');
+
+        Route::post('/orders/{order}/delivered', [OrderController::class, 'markDelivered'])
+            ->name('orders.delivered');
+
+        // ==============================
+        // KHÁCH HÀNG
+        // ==============================
+
+        Route::get('/customers', [CustomerController::class, 'index'])
+            ->name('customers.index');
+    });
+
+// Lô hàng, xuất hủy, cảnh báo cận date: Farm Staff và Admin cùng dùng
+// (tách khỏi nhóm EnsureAdmin để Farm Staff không bị 403)
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware(['auth', 'role:farm_staff,admin'])
+    ->group(function () {
+
+        // ==============================
         // QUẢN LÝ LÔ HÀNG
         // ==============================
 
@@ -66,28 +98,4 @@ Route::prefix('admin')
 
         Route::post('/batches/alert-days', [BatchController::class, 'updateAlertDays'])
             ->name('batches.alert-days.update');
-
-        // ==============================
-        // SẢN PHẨM
-        // ==============================
-
-        Route::resource('products', ProductController::class)
-            ->except('show');
-
-        // ==============================
-        // ĐƠN HÀNG
-        // ==============================
-
-        Route::get('/orders', [OrderController::class, 'index'])
-            ->name('orders.index');
-
-        Route::post('/orders/{order}/delivered', [OrderController::class, 'markDelivered'])
-            ->name('orders.delivered');
-
-        // ==============================
-        // KHÁCH HÀNG
-        // ==============================
-
-        Route::get('/customers', [CustomerController::class, 'index'])
-            ->name('customers.index');
     });

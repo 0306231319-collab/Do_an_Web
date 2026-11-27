@@ -1,6 +1,7 @@
 
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 use App\Models\Batch;
@@ -43,15 +44,16 @@ Route::get('/cart', function () {
     return view('cart.index');
 })->name('cart.index');
 
-// Trang thanh toán COD
-Route::get('/cart/checkout', function () {
-    return view('cart.checkout');
-})->name('cart.checkout');
+// Trang thanh toán COD + đặt hàng thành công (bắt buộc đăng nhập)
+Route::middleware('auth')->group(function () {
+    Route::get('/cart/checkout', function () {
+        return view('cart.checkout');
+    })->name('cart.checkout');
 
-// Trang đặt hàng thành công
-Route::get('/cart/thank-you', function () {
-    return view('cart.thank-you');
-})->name('cart.thank-you');
+    Route::get('/cart/thank-you', function () {
+        return view('cart.thank-you');
+    })->name('cart.thank-you');
+});
 
 // API giỏ hàng
 Route::prefix('api/cart')->group(function () {
@@ -61,8 +63,9 @@ Route::prefix('api/cart')->group(function () {
     Route::delete('/{productId}', [CartOrderApiController::class, 'removeFromCart']);
 });
 
-// API đặt hàng COD
+// API đặt hàng COD (bắt buộc đăng nhập)
 Route::post('/api/orders', [OrderController::class, 'store'])
+    ->middleware('auth')
     ->name('api.orders.store');
 
 // Cập nhật trạng thái đơn hàng
@@ -89,8 +92,8 @@ Route::middleware(['auth', 'role:sales,admin'])->prefix('sales')->group(function
         ->name('sales.complaints.resolve');
 });
 
-// Quản lý lô hàng
-Route::middleware('auth')->group(function () {
+// Quản lý lô hàng (chỉ Farm Staff và Admin)
+Route::middleware(['auth', 'role:farm_staff,admin'])->group(function () {
     Route::resource('batches', BatchController::class)->except('show');
 
     Route::post('batches-warning', [BatchController::class, 'updateWarning'])
@@ -117,6 +120,9 @@ Route::post('/relogin', function (Request $request) {
 
     return response()->json(['message' => 'Sai thông tin'], 422);
 });
+// Đăng ký tài khoản
+Route::get('/dang-ky', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/dang-ky', [AuthController::class, 'register'])->name('register.store');
 
 // Tuần 5: Trang truy xuất nguồn gốc (công khai khi quét mã QR)
 Route::get('/truy-xuat/{batch_code}', [TraceabilityController::class, 'show'])

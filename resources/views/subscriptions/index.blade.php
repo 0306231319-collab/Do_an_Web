@@ -42,7 +42,7 @@
                         <label class="block text-sm font-medium mb-1">Chọn nông sản giao mỗi kỳ</label>
                         <select name="product_id" required class="w-full border rounded-lg px-3 py-2 text-sm">
                             @foreach($products as $product)
-                                <option value="{{ $product->id }}">
+                                <option value="{{ $product->id }}" {{ (string) request('product_id') === (string) $product->id ? 'selected' : '' }}>
                                     {{ $product->name }} - {{ number_format($product->discount_price ?? $product->base_price) }}đ/kg
                                 </option>
                             @endforeach
@@ -52,7 +52,7 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-sm font-medium mb-1">Số lượng / kỳ (kg)</label>
-                            <input type="number" step="0.5" min="0.5" name="so_luong" value="2" required
+                            <input type="number" step="0.5" min="0.5" name="so_luong" value="{{ request('so_luong', 2) }}" required
                                    class="w-full border rounded-lg px-3 py-2 text-sm">
                         </div>
                         <div>

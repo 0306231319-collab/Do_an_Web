@@ -35,6 +35,10 @@
             @enderror
 
             <button class="min-h-11 rounded-lg bg-green-700 font-semibold text-white shadow hover:bg-green-800">Đăng nhập</button>
+            <p class="mt-4 text-center text-sm text-gray-600">
+                Chưa có tài khoản?
+                <a href="{{ route('register') }}" class="font-semibold text-[#1E5631] underline">Đăng ký</a>
+            </p>
         </form>
 
         @if (app()->environment('local'))
