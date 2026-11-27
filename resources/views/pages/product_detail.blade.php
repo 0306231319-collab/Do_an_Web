@@ -5,7 +5,37 @@
 @section('show_footer', true)
 
 @section('content')
-<div class="mx-auto max-w-5xl px-4 py-6 space-y-6" x-data="{ buyMode: 'retail', qty: 1 }">
+<div class="mx-auto max-w-5xl px-4 py-6 space-y-6" x-data="{
+    buyMode: 'retail',
+    qty: 1,
+    loading: false,
+    async submit() {
+        if (this.loading) return;
+        const quantity = Math.max(1, parseInt(this.qty) || 1);
+
+        if (this.buyMode === 'subscription') {
+            window.location.href = '{{ route('subscriptions.index') }}?product_id={{ $product->id }}&so_luong=' + quantity;
+            return;
+        }
+
+        this.loading = true;
+        try {
+            const response = await window.apiFetch('/api/cart', {
+                method: 'POST',
+                body: JSON.stringify({ product_id: {{ $product->id }}, quantity: quantity })
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Không thể thêm sản phẩm vào giỏ hàng.');
+            }
+            window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Đã thêm ' + quantity + ' {{ $product->unit }} vào giỏ hàng.' } }));
+        } catch (error) {
+            window.dispatchEvent(new CustomEvent('toast', { detail: { message: error.message || 'Có lỗi xảy ra.' } }));
+        } finally {
+            this.loading = false;
+        }
+    }
+}">
     {{-- Phần thông tin chính sản phẩm --}}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 rounded-2xl border border-[#E6E3D8] bg-white p-5 md:p-6 shadow-xs">
         <div class="aspect-4/3 w-full overflow-hidden rounded-xl bg-emerald-50">
@@ -68,7 +98,7 @@
 
                 <div class="flex items-center gap-3">
                     <input type="number" x-model.number="qty" min="1" class="w-20 rounded-xl border border-gray-300 px-3 py-2.5 text-center text-sm font-bold">
-                    <button type="button" {{ !$currentBatch ? 'disabled' : '' }}
+                    <button type="button" {{ !$currentBatch ? 'disabled' : '' }} @click="submit()"
                             class="flex-1 rounded-xl bg-[#1E5631] py-3 text-sm font-bold text-white hover:bg-[#164225] disabled:opacity-50 transition cursor-pointer">
                         <span x-text="buyMode === 'retail' ? 'Thêm vào giỏ hàng' : 'Đăng ký gói định kỳ'"></span>
                     </button>
