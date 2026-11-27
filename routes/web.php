@@ -4,8 +4,8 @@
 
 // Route::get('/', function () {
 //     return view('welcome');
-use App\Http\Controllers\BatchController;
-use App\Http\Controllers\BatchDisposalController;
+use App\Http\Controllers\Admin\BatchController;
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,8 +45,8 @@ Route::middleware(['auth', 'role:sales,admin'])->prefix('sales')->group(function
 Route::middleware('auth')->group(function () {
     Route::resource('batches', BatchController::class)->except('show');
     Route::post('batches-warning', [BatchController::class, 'updateWarning'])->name('batches.warning');
-    Route::get('disposals/create', [BatchDisposalController::class, 'create'])->name('disposals.create');
-    Route::post('disposals', [BatchDisposalController::class, 'store'])->name('disposals.store');
+
+
 });
 
 Route::get('/csrf-token', fn () => response()->json(['token' => csrf_token()]));

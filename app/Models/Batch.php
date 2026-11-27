@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,7 +45,8 @@ class Batch extends Model
 
     public function farmingLogs(): HasMany
     {
-        return $this->hasMany(FarmingLog::class)->orderBy('thoi_gian');
+        return $this->hasMany(FarmingLog::class)
+            ->orderBy('thoi_gian');
     }
 
     public function inventoryLogs(): HasMany
@@ -60,7 +60,8 @@ class Batch extends Model
     }
 
     /**
-     * Số ngày còn lại đến hạn sử dụng (âm nếu đã quá hạn).
+     * Số ngày còn lại đến hạn sử dụng.
+     * Số âm nghĩa là đã quá hạn.
      */
     public function daysToExpiry(): int
     {
@@ -70,31 +71,43 @@ class Batch extends Model
         );
     }
 
+    /**
+     * Lấy số ngày cảnh báo từ system_configs.
+     */
     public static function warningDays(): int
     {
-        static $days = null;
-
-        return $days ??= (int) (
-            DB::table('system_configs')
-                ->where('key', 'expiry_warning_days')
-                ->value('value') ?? 2
+        return (int) SystemConfig::getValue(
+            'near_expiry_alert_days',
+            2
         );
     }
 
+    /**
+     * Scope lấy các lô còn tồn và sắp hết hạn.
+     */
     public function scopeNearExpiry($query)
     {
         return $query
             ->where('current_quantity', '>', 0)
             ->whereDate(
                 'expiry_date',
+                '>=',
+                now()->toDateString()
+            )
+            ->whereDate(
+                'expiry_date',
                 '<=',
-                now()->addDays(self::warningDays())
+                now()->addDays(self::warningDays())->toDateString()
             );
     }
 
+    /**
+     * Kiểm tra lô có đang cận hạn hay không.
+     */
     public function isNearExpiry(): bool
     {
         return (float) $this->current_quantity > 0
+            && $this->expiry_date->gte(now()->startOfDay())
             && $this->expiry_date->lte(
                 now()->addDays(self::warningDays())->endOfDay()
             );
