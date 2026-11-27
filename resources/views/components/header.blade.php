@@ -26,10 +26,11 @@
         </nav>
 
         {{-- Nút giỏ hàng --}}
-        <a href="#"
-           class="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
-            Giỏ hàng
+        <a href="{{ route('cart.index') }}"
+            class="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700">
+                Giỏ hàng
         </a>
+
 
     </div>
 </header>

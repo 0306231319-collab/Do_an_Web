@@ -9,93 +9,130 @@ use Illuminate\Http\Request;
 
 class CartOrderApiController extends Controller
 {
+    private function sellingPrice(Product $product): float
+    {
+        $discount = $product->discount_price;
+
+        return (float) (($discount !== null && (float) $discount > 0)
+            ? $discount
+            : $product->base_price);
+    }
+
+    private function cartPayload(array $cart): array
+    {
+        $items = [];
+        $total = 0;
+
+        foreach ($cart as $productId => $cartItem) {
+            $product = Product::query()
+                ->whereKey($productId)
+                ->where('status', 'active')
+                ->first();
+
+            if (!$product) {
+                continue;
+            }
+
+            $quantity = (int) ($cartItem['quantity'] ?? 1);
+            $price = $this->sellingPrice($product);
+            $subtotal = round($price * $quantity, 2);
+
+            $items[] = [
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'thumbnail_url' => $product->thumbnail_url,
+                'unit' => $product->unit,
+                'unit_price' => $price,
+                'quantity' => $quantity,
+                'subtotal' => $subtotal,
+            ];
+            $total += $subtotal;
+        }
+
+        return ['items' => $items, 'total_amount' => round($total, 2)];
+    }
+
     public function getCart(Request $request)
     {
         $cart = session()->get('cart', []);
-        $total = 0;
-
-        foreach ($cart as &$item) {
-            $product = Product::find($item['product_id']);
-            if ($product) {
-                $price = (float) ($product->price ?? $product->don_gia ?? 0);
-                $item['unit_price'] = $price;
-                $item['subtotal']   = $price * (int) $item['quantity'];
-                $total += $item['subtotal'];
-            }
-        }
-        unset($item);
 
         return response()->json([
             'success' => true,
-            'code'    => 200,
+            'code' => 200,
             'message' => 'Lấy giỏ hàng thành công.',
-            'data'    => [
-                'items'        => array_values($cart),
-                'total_amount' => $total,
-            ],
+            'data' => $this->cartPayload($cart),
         ]);
     }
 
     public function addToCart(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => 'required|integer|exists:products,id',
-            'quantity'   => 'required|integer|min:1',
+            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
-        $product = Product::findOrFail($validated['product_id']);
-        $price = (float) ($product->price ?? $product->don_gia ?? 0);
+        $product = Product::query()
+            ->whereKey($validated['product_id'])
+            ->where('status', 'active')
+            ->firstOrFail();
+
         $cart = session()->get('cart', []);
-        $id = $product->id;
-
-        if (isset($cart[$id])) {
-            $cart[$id]['quantity'] += (int) $validated['quantity'];
-            $cart[$id]['unit_price'] = $price;
-        } else {
-            $cart[$id] = [
-                'product_id'   => $product->id,
-                'product_name' => $product->name ?? $product->ten_san_pham ?? 'Sản phẩm',
-                'unit_price'   => $price,
-                'quantity'     => (int) $validated['quantity'],
-            ];
-        }
-
+        $id = (int) $product->id;
+        $cart[$id] = [
+            'product_id' => $id,
+            'quantity' => min(99, (int) ($cart[$id]['quantity'] ?? 0) + (int) $validated['quantity']),
+        ];
         session()->put('cart', $cart);
 
         return response()->json([
             'success' => true,
-            'code'    => 201,
+            'code' => 201,
             'message' => 'Đã thêm vào giỏ hàng.',
-            'data'    => $cart[$id],
+            'data' => $this->cartPayload($cart),
         ], 201);
     }
 
     public function updateCart(Request $request, int $productId)
     {
         $validated = $request->validate([
-            'quantity' => 'required|integer|min:1',
+            'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
         $cart = session()->get('cart', []);
         if (!isset($cart[$productId])) {
             return response()->json([
                 'success' => false,
-                'code'    => 404,
+                'code' => 404,
                 'message' => 'Sản phẩm không có trong giỏ hàng.',
-                'errors'  => null,
+                'errors' => null,
             ], 404);
         }
 
-        $product = Product::findOrFail($productId);
-        $cart[$productId]['quantity']   = (int) $validated['quantity'];
-        $cart[$productId]['unit_price'] = (float) ($product->price ?? $product->don_gia ?? 0);
+        $product = Product::query()
+            ->whereKey($productId)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$product) {
+            unset($cart[$productId]);
+            session()->put('cart', $cart);
+
+            return response()->json([
+                'success' => false,
+                'code' => 404,
+                'message' => 'Sản phẩm không còn được kinh doanh.',
+                'errors' => null,
+            ], 404);
+        }
+
+        $cart[$productId]['quantity'] = (int) $validated['quantity'];
         session()->put('cart', $cart);
 
         return response()->json([
             'success' => true,
-            'code'    => 200,
+            'code' => 200,
             'message' => 'Cập nhật giỏ hàng thành công.',
-            'data'    => $cart[$productId],
+            'data' => $this->cartPayload($cart),
         ]);
     }
 
@@ -105,9 +142,9 @@ class CartOrderApiController extends Controller
         if (!isset($cart[$productId])) {
             return response()->json([
                 'success' => false,
-                'code'    => 404,
+                'code' => 404,
                 'message' => 'Không tìm thấy sản phẩm trong giỏ.',
-                'errors'  => null,
+                'errors' => null,
             ], 404);
         }
 
@@ -116,9 +153,9 @@ class CartOrderApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'code'    => 200,
+            'code' => 200,
             'message' => 'Đã xóa sản phẩm khỏi giỏ hàng.',
-            'data'    => null,
+            'data' => $this->cartPayload($cart),
         ]);
     }
 
@@ -129,19 +166,13 @@ class CartOrderApiController extends Controller
         ]);
 
         $order = Order::findOrFail($id);
-        $order->trang_thai = $validated['trang_thai'];
-
-        if ($validated['trang_thai'] === 'DaGiao' && empty($order->ngay_giao_thuc_te)) {
-            $order->ngay_giao_thuc_te = now();
-        }
-
-        $order->save();
+        $order->update(['trang_thai' => $validated['trang_thai']]);
 
         return response()->json([
             'success' => true,
-            'code'    => 200,
+            'code' => 200,
             'message' => 'Cập nhật trạng thái đơn hàng thành công.',
-            'data'    => $order,
+            'data' => $order,
         ]);
     }
 }
