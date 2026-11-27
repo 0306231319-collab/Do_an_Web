@@ -14,5 +14,6 @@ class AdminServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::middleware('web')->group(base_path('routes/admin.php'));
+        Route::middleware('web')->group(base_path('routes/auth.php'));
     }
 }

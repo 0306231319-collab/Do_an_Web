@@ -28,9 +28,10 @@
         </nav>
         <div class="hidden md:block px-5 py-3 text-xs text-emerald-200 border-t border-emerald-800 mt-4">
             {{ auth()->user()->full_name ?? '' }}
-            @if (app()->environment('local'))
-                <a href="{{ route('dev.logout') }}" class="block underline mt-1">Đăng xuất (local)</a>
-            @endif
+                       <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                @csrf
+                <button class="underline">Đăng xuất</button>
+            </form>
         </div>
     </aside>
 
