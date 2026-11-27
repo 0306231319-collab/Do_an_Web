@@ -18,7 +18,7 @@
             Hàng hết hạn trước được bán trước, luôn tươi mỗi ngày.
         </p>
         <div class="mt-7 flex flex-wrap gap-3">
-            <a href="#products"
+            <a href="{{ Route::has('products.index') ? route('products.index') : '#products' }}"
                class="rounded-xl bg-white px-6 py-3 font-semibold text-green-800 shadow hover:bg-green-50">
                 Khám phá sản phẩm
             </a>
