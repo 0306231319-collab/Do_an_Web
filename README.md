@@ -1,59 +1,160 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Nông Sản Sạch
 
-## About Laravel
+Website thương mại điện tử giới thiệu và kinh doanh nông sản sạch, giúp khách hàng tìm hiểu và lựa chọn các sản phẩm nông sản.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 1. Công nghệ sử dụng
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Backend:** PHP 8.3, Laravel 12
+- **Frontend:** HTML, CSS, JavaScript, Vite
+- **Database:** MySQL
+- **Web Server:** Apache
+- **Containerization:** Docker
+- **Deployment:** Render
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 2. Cài đặt dự án trên máy cá nhân
 
-## Learning Laravel
+### Yêu cầu
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- PHP >= 8.2
+- Composer
+- Node.js và npm
+- MySQL Server
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Các bước cài đặt
 
-## Laravel Sponsors
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Cấu hình thông tin MySQL trong file `.env`:
 
-### Premium Partners
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=nong_san_sach
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Tạo database `nong_san_sach` trong MySQL trước khi chạy migration.
 
-## Contributing
+```bash
+php artisan migrate
+npm run build
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Khởi chạy ứng dụng
 
-## Code of Conduct
+```bash
+php artisan serve
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Truy cập: http://127.0.0.1:8000
 
-## Security Vulnerabilities
+## 3. Chạy bằng Docker
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Build image
 
-## License
+Mở PowerShell hoặc Terminal tại thư mục chứa Dockerfile:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+docker build -t nong-san-sach:week7 .
+```
+
+### Khởi chạy container
+
+Nếu MySQL đang chạy trực tiếp trên máy Windows, sử dụng:
+
+```bash
+docker run -d --name nong-san-sach-test -p 8080:80 --add-host=host.docker.internal:host-gateway -e APP_ENV=production -e APP_DEBUG=false -e APP_KEY="YOUR_GENERATED_KEY" -e DB_CONNECTION=mysql -e DB_HOST=host.docker.internal -e DB_PORT=3306 -e DB_DATABASE=nong_san_sach -e DB_USERNAME=root -e DB_PASSWORD="YOUR_DB_PASSWORD" nong-san-sach:week7
+```
+
+Thay `YOUR_GENERATED_KEY` bằng khóa được tạo từ:
+
+```bash
+php artisan key:generate --show
+```
+
+Thay `YOUR_DB_PASSWORD` bằng mật khẩu MySQL thực tế.
+
+Đảm bảo MySQL cho phép kết nối từ Docker và database đã được tạo.
+
+Truy cập website: http://localhost:8080
+
+### Kiểm tra container
+
+```bash
+docker ps
+docker logs nong-san-sach-test
+```
+
+### Dừng và xóa container kiểm thử
+
+```bash
+docker stop nong-san-sach-test
+docker rm nong-san-sach-test
+```
+
+## 4. Cấu hình môi trường Production
+
+Khai báo các biến môi trường trong phần Environment của dịch vụ triển khai:
+
+| Biến | Giá trị |
+|---|---|
+| `APP_NAME` | `Nong San Sach` |
+| `APP_ENV` | `production` |
+| `APP_DEBUG` | `false` |
+| `APP_KEY` | Khóa ứng dụng Laravel hợp lệ |
+| `APP_URL` | URL ứng dụng được Render cung cấp |
+| `DB_CONNECTION` | `mysql` |
+| `DB_HOST` | Hostname của MySQL server |
+| `DB_PORT` | `3306` |
+| `DB_DATABASE` | Tên database |
+| `DB_USERNAME` | Tên tài khoản MySQL |
+| `DB_PASSWORD` | Mật khẩu MySQL |
+| `SESSION_DRIVER` | `file` |
+| `CACHE_STORE` | `file` |
+| `QUEUE_CONNECTION` | `sync` |
+
+Không bật `APP_DEBUG=true` trên môi trường Production.
+
+## 5. Triển khai trên Render
+
+1. Đẩy mã nguồn dự án lên GitHub.
+2. Đăng nhập Render và chọn New → Web Service.
+3. Kết nối repository GitHub chứa dự án.
+4. Chọn môi trường triển khai Docker.
+5. Khai báo các biến môi trường trong phần Environment.
+6. Cấu hình kết nối tới MySQL server có thể truy cập từ Render.
+7. Chọn Deploy Web Service.
+8. Sau khi triển khai hoàn tất, truy cập URL Render cung cấp.
+
+## 6. Lưu ý về MySQL và dữ liệu
+
+Dự án sử dụng MySQL làm hệ quản trị cơ sở dữ liệu.
+
+Database cần được tạo trước khi chạy migration. Khi triển khai Production, cần sử dụng MySQL server có khả năng lưu trữ dữ liệu bền vững và cho phép ứng dụng kết nối qua mạng.
+
+Không nên sử dụng database MySQL chỉ chạy trong container ứng dụng vì dữ liệu có thể mất khi container bị xóa hoặc tạo lại.
+
+## 7. Cấu trúc Docker
+
+Dockerfile sử dụng multi-stage build gồm:
+
+- **Stage 1 – Frontend:** Cài đặt dependencies bằng Node.js và build tài nguyên frontend.
+- **Stage 2 – Composer:** Cài đặt PHP dependencies bằng Composer.
+- **Stage 3 – Application:** Chạy ứng dụng Laravel bằng PHP 8.3, Apache và extension PDO MySQL.
+
+Các file cấu hình Docker:
+
+- `Dockerfile`
+- `.dockerignore`
+
+---
+
+© 2026 Nông Sản Sạch
