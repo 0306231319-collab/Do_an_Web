@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Models\Product;
@@ -6,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\BatchController;
 use App\Http\Controllers\Api\CartOrderApiController;
 use App\Http\Controllers\ComplaintController;
@@ -19,6 +19,11 @@ Route::get('/', function () {
     return view('pages.home', compact('products'));
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/tai-khoan', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/tai-khoan', [ProfileController::class, 'update'])->name('profile.update');
+});
+Route::view('/ve-chung-toi', 'pages.about')->name('about');
 // Gói định kỳ bản rút gọn
 Route::get('/subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
 Route::post('/subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
