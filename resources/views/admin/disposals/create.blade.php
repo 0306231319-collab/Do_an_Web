@@ -28,6 +28,14 @@
         </div>
     @endif
 
+    @php
+        // Viền đỏ khi ô có lỗi, viền xám khi bình thường
+        $border = [];
+        foreach (['batch_id', 'quantity', 'reason'] as $field) {
+            $border[$field] = $errors->has($field) ? 'border-red-400' : 'border-slate-300';
+        }
+    @endphp
+
     <div class="rounded-2xl border-2 border-emerald-100 bg-white p-5 shadow-sm md:p-6">
         <form action="{{ route('admin.disposals.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
             @csrf
@@ -38,7 +46,7 @@
                     Lô hàng <span class="text-red-600">*</span>
                 </label>
                 <select name="batch_id" id="batch_id" required
-                        class="min-h-11 w-full rounded-lg border px-3 @error('batch_id') border-red-400 @else border-slate-300 @enderror focus:border-emerald-600 focus:outline-none">
+                        class="min-h-11 w-full rounded-lg border px-3 {{ $border['batch_id'] }} focus:border-emerald-600 focus:outline-none">
                     <option value="">-- Chọn lô hàng --</option>
                     @foreach ($batches as $batch)
                         <option value="{{ $batch->id }}"
@@ -68,7 +76,7 @@
                 </label>
                 <input type="number" name="quantity" id="quantity" value="{{ old('quantity') }}"
                        min="0.01" step="0.01" required
-                       class="min-h-11 w-full rounded-lg border px-3 @error('quantity') border-red-400 @else border-slate-300 @enderror focus:border-emerald-600 focus:outline-none sm:w-48">
+                       class="min-h-11 w-full rounded-lg border px-3 {{ $border['quantity'] }} focus:border-emerald-600 focus:outline-none sm:w-48">
                 @error('quantity')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
@@ -82,7 +90,7 @@
                 </label>
                 <textarea name="reason" id="reason" rows="3" maxlength="255" required
                           placeholder="Ví dụ: Rau dập nát do vận chuyển"
-                          class="w-full rounded-lg border px-3 py-2 @error('reason') border-red-400 @else border-slate-300 @enderror focus:border-emerald-600 focus:outline-none">{{ old('reason') }}</textarea>
+                          class="w-full rounded-lg border px-3 py-2 {{ $border['reason'] }} focus:border-emerald-600 focus:outline-none">{{ old('reason') }}</textarea>
                 @error('reason')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
